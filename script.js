@@ -117,33 +117,49 @@ jQuery(document).ready(function() {
     //     </ul>
     // </div>
 
-    const selector = "div.acmenu ul.idx > li:not([class^='level']) > div.li";
+    const selector = "div.acmenu ul.idx li:not([class^='level'])";
 
     get_cookie();
     set_cookie();
 
     jQuery(selector).click(function(event) {
-        var item = trim_url(jQuery(this).find("a").attr("href"));
-        if (JSINFO.plugin_acmenu.mergenspg) {
-            event.stopPropagation();
-        } else {
-            event.preventDefault();
+        event.stopPropagation(); // Prevent bubbling to parent namespaces
+        
+        var $submenu = jQuery(this).children("ul");
+        // Ignore clicks that originated from child pages (which bubbled up)
+        if ($submenu.length > 0 && jQuery.contains($submenu[0], event.target)) {
+            return;
         }
-        if (jQuery(this).next().is(":hidden")) {
-            if (!JSINFO.plugin_acmenu.mergenspg || JSINFO.plugin_acmenu.mergenspg && (event.target.nodeName === "DIV")) {
-                jQuery(this)
-                .next().slideDown("fast")
-                .parent().removeClass("closed").addClass("open");
+
+        var $a = jQuery(this).children("div.li").find("a");
+        if ($a.length === 0) return;
+        var item = trim_url($a.attr("href"));
+
+        var is_mergenspg = JSINFO.plugin_acmenu && (JSINFO.plugin_acmenu.mergenspg == 1 || JSINFO.plugin_acmenu.mergenspg == "1" || JSINFO.plugin_acmenu.mergenspg === true);
+        var is_link_click = (event.target.nodeName === "A" || (event.target.parentNode && event.target.parentNode.nodeName === "A"));
+
+        if (is_link_click && is_mergenspg) {
+            return; // Let the browser navigate
+        }
+
+        event.preventDefault(); // Stop navigation if clicking text and mergenspg is false
+
+        if ($submenu.length === 0) return;
+
+        if ($submenu.is(":hidden")) {
+            $submenu.slideDown("fast");
+            jQuery(this).removeClass("closed").addClass("open");
+            if (_OPEN_ITEMS.indexOf(item) === -1) {
+                _OPEN_ITEMS.push(item);
             }
-            _OPEN_ITEMS.push(item);
         }
         else {
-            if (!JSINFO.plugin_acmenu.mergenspg || JSINFO.plugin_acmenu.mergenspg && (event.target.nodeName === "DIV")) {
-                jQuery(this)
-                .next().slideUp("fast")
-                .parent().removeClass("open").addClass("closed");
+            $submenu.slideUp("fast");
+            jQuery(this).removeClass("open").addClass("closed");
+            var index = jQuery.inArray(item, _OPEN_ITEMS);
+            if (index !== -1) {
+                _OPEN_ITEMS.splice(index, 1);
             }
-            _OPEN_ITEMS.splice(jQuery.inArray(item, _OPEN_ITEMS), 1);
         }
         var cookie_value = JSON.stringify(_OPEN_ITEMS);
         document.cookie = _COOKIE_NAME + "=" + cookie_value + _COOKIE_PARAMETERS;

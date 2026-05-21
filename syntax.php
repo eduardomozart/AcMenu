@@ -272,16 +272,18 @@ class syntax_plugin_acmenu extends DokuWiki_Syntax_Plugin
                     }
                 }
             } else {
-                $id = implode(":", array_filter(array($ns_acmenu, $file, $conf["start"]), "strlen"));
+                $dir_id = implode(":", array_filter(array($ns_acmenu, $file), "strlen"));
+                $start_id = implode(":", array_filter(array($ns_acmenu, $file, $conf["start"]), "strlen"));
+                $id = $start_id;
+                if ($this->getConf("mergenspg") && page_exists($dir_id) && !page_exists($start_id)) {
+                    $id = $dir_id;
+                }
                 if ($conf["sneaky_index"] && auth_quickaclcheck($id) < AUTH_READ) {
                     continue;
                 } else {
                     $heading = $file;
                     if (useheading("navigation")) {
                         if (page_exists($id)) {
-                            $heading = p_get_first_heading($id);
-                        } elseif (substr($id, -strlen(":" . $conf["start"])) == ":" . $conf["start"]) {
-                            $id = substr($id, 0, -strlen(":" . $conf["start"]));
                             $heading = p_get_first_heading($id);
                         }
                     }
@@ -295,9 +297,10 @@ class syntax_plugin_acmenu extends DokuWiki_Syntax_Plugin
                     } else {
                         $tree[] = array("heading" => $heading,
                                         "id" => $id,
+                                        "ns_id" => $dir_id,
                                         "level" => $level,
                                         "type" => "ns",
-                                        "sub" => $this->_tree(implode(":", array_filter(array($ns_acmenu, $file), "strlen")), $level));
+                                        "sub" => $this->_tree($dir_id, $level));
                     }
                 }
             }
@@ -389,7 +392,7 @@ class syntax_plugin_acmenu extends DokuWiki_Syntax_Plugin
             $val["id"] = utf8_decodeFN($val["id"]);
             $val["heading"] = utf8_decodeFN($val["heading"]);
             if ($val["type"] == "pg") {
-                if ($this->getConf("mergenspg") && !@is_dir(substr(wikiFN($val["id"]), 0, -strlen(".txt")))) {
+                if (!$this->getConf("mergenspg") || !@is_dir(substr(wikiFN($val["id"]), 0, -strlen(".txt")))) {
                     $renderer->doc .= "<li class='level" . $val["level"]."'>";
                     $renderer->doc .= "<div class='li'>";
                     $renderer->internallink($val["id"], $val["heading"]);
@@ -406,14 +409,16 @@ class syntax_plugin_acmenu extends DokuWiki_Syntax_Plugin
                 if (count($val["sub"]) == 0) {
                     continue;
                 }
-                if (in_array($val["id"], $sub_ns)
-                    || in_array($val["id"], $open_items)) {
+                
+                $is_open = in_array($val["ns_id"], $sub_ns) || in_array($val["id"], $open_items) || in_array($val["ns_id"], $open_items);
+                
+                if ($is_open) {
                     $renderer->doc .= "<li class='open'>";
                 } else {
                     $renderer->doc .= "<li class='closed'>";
                 }
                 $renderer->doc .= "<div class='li'>";
-                if (in_array($val["id"], $sub_ns)) {
+                if (in_array($val["ns_id"], $sub_ns)) {
                     $renderer->doc .= "<span class='curid'>";
                     $renderer->internallink($val["id"], $val["heading"]);
                     $renderer->doc .= "</span>";
@@ -421,11 +426,10 @@ class syntax_plugin_acmenu extends DokuWiki_Syntax_Plugin
                     $renderer->internallink($val["id"], $val["heading"]);
                 }
                 $renderer->doc .= "</div>";
-                if (in_array($val["id"], $sub_ns)
-                    || in_array($val["id"], $open_items)) {
+                if ($is_open) {
                     $renderer->doc .= "<ul class='idx'>";
                 } else {
-                    $renderer->doc .= "<ul class='idx' style='display: none'>";
+                    $renderer->doc .= "<ul class='idx' style='display: none;'>";
                 }
                 $this->_print($renderer, $val["sub"], $sub_ns, $open_items);
                 $renderer->doc .= "</ul>";

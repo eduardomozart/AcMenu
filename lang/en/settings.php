@@ -2,7 +2,7 @@
 /**
  * english language file for acmenu plugin
  *
- * @author Torpedo <dcstoyanov@gmail.com>
+ * @author Till Biskup <till@till-biskup.de>
  */
 
 // keys need to match the config setting name

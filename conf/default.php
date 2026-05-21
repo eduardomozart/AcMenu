@@ -1,8 +1,8 @@
 <?php
 /**
- * Default settings for the caption plugin
+ * Options for the acmenu plugin
  *
- * @author Torpedo <dcstoyanov@gmail.com>
+ * @author Till Biskup <till@till-biskup.de>
  */
 
 //$conf['fixme']    = 'FIXME';

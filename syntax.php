@@ -117,7 +117,7 @@ class syntax_plugin_acmenu extends DokuWiki_Syntax_Plugin
         // get the namespace genealogy of the current id
         // and store it as metadata to be later used in javascript
         $id = isset($INFO["id"]) ? $INFO["id"] : "";
-        $sub_ns = $this->_get_sub_ns($id);
+        $sub_ns = $this->_get_sub_ns(utf8_decodeFN($id));
         p_set_metadata($id, array("plugin" => array("plugin_acmenu" => array("sub_ns" => $sub_ns))), false, false);
 
         // build the namespace tree structure
@@ -253,11 +253,11 @@ class syntax_plugin_acmenu extends DokuWiki_Syntax_Plugin
         global $conf;
         $tree = array();
         $level = $level + 1;
-        $dir = $conf["savedir"] ."/pages/" . str_replace(":", "/", $ns_acmenu);
+        $dir = init_path($conf["savedir"]) ."/pages/" . str_replace(":", "/", $ns_acmenu);
         $files = array_diff(scandir($dir), array("..", "."));
         foreach ($files as $file) {
             if (is_file($dir . "/" . $file)) {
-                $pg_name = cleanID(utf8_decodeFN(substr_replace($file, "", -strlen(".txt"))));
+                $pg_name = substr_replace($file, "", -strlen(".txt"));
                 $id = implode(":", array_filter(array($ns_acmenu, $pg_name), "strlen"));
                 if (!isHiddenPage($id)) {
                     if (auth_quickaclcheck($id) >= AUTH_READ) {
@@ -386,6 +386,8 @@ class syntax_plugin_acmenu extends DokuWiki_Syntax_Plugin
     {
         global $conf;
         foreach ($tree as $key => $val) {
+            $val["id"] = utf8_decodeFN($val["id"]);
+            $val["heading"] = utf8_decodeFN($val["heading"]);
             if ($val["type"] == "pg") {
                 if ($this->getConf("mergenspg") && !@is_dir(substr(wikiFN($val["id"]), 0, -strlen(".txt")))) {
                     $renderer->doc .= "<li class='level" . $val["level"]."'>";

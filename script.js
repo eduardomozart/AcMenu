@@ -143,15 +143,7 @@ jQuery(document).ready(function() {
                            JSINFO.plugin_acmenu.mergenspg === "on"
                            );
 
-        var is_link_click = false;
-        var node = event.target;
-        while (node && node !== this) {
-            if (node.tagName && node.tagName.toUpperCase() === "A") {
-                is_link_click = true;
-                break;
-            }
-            node = node.parentNode;
-        }
+        var is_link_click = (event.target.nodeName === "A" || (event.target.parentNode && event.target.parentNode.nodeName === "A"));
 
         if (is_link_click && is_mergenspg) {
             return; // Let the browser navigate naturally

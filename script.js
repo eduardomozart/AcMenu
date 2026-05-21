@@ -143,10 +143,18 @@ jQuery(document).ready(function() {
                            JSINFO.plugin_acmenu.mergenspg === "on"
                            );
 
-        var is_link_click = jQuery(event.target).closest("a").length > 0;
+        var is_link_click = false;
+        var node = event.target;
+        while (node && node !== this) {
+            if (node.tagName && node.tagName.toUpperCase() === "A") {
+                is_link_click = true;
+                break;
+            }
+            node = node.parentNode;
+        }
 
         if (is_link_click && is_mergenspg) {
-            return; // Let the browser navigate
+            return; // Let the browser navigate naturally
         }
 
         event.preventDefault(); // Stop navigation if clicking text and mergenspg is false

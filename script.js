@@ -126,8 +126,8 @@ jQuery(document).ready(function() {
         event.stopPropagation(); // Prevent bubbling to parent namespaces
         
         var $submenu = jQuery(this).children("ul");
-        // Ignore clicks that originated from child pages (which bubbled up)
-        if ($submenu.length > 0 && jQuery.contains($submenu[0], event.target)) {
+        // Ignore clicks that originated from child pages (which bubbled up) or clicking the ul padding itself
+        if ($submenu.length > 0 && ($submenu[0] === event.target || jQuery.contains($submenu[0], event.target))) {
             return;
         }
 
@@ -135,8 +135,15 @@ jQuery(document).ready(function() {
         if ($a.length === 0) return;
         var item = trim_url($a.attr("href"));
 
-        var is_mergenspg = JSINFO.plugin_acmenu && (JSINFO.plugin_acmenu.mergenspg == 1 || JSINFO.plugin_acmenu.mergenspg == "1" || JSINFO.plugin_acmenu.mergenspg === true);
-        var is_link_click = (event.target.nodeName === "A" || (event.target.parentNode && event.target.parentNode.nodeName === "A"));
+        var is_mergenspg = JSINFO.plugin_acmenu && (
+                           JSINFO.plugin_acmenu.mergenspg === 1 || 
+                           JSINFO.plugin_acmenu.mergenspg === "1" || 
+                           JSINFO.plugin_acmenu.mergenspg === true || 
+                           JSINFO.plugin_acmenu.mergenspg === "true" || 
+                           JSINFO.plugin_acmenu.mergenspg === "on"
+                           );
+
+        var is_link_click = jQuery(event.target).closest("a").length > 0;
 
         if (is_link_click && is_mergenspg) {
             return; // Let the browser navigate

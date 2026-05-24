@@ -6,7 +6,7 @@
  */
 
 // keys need to match the config setting name
-$lang['mergenspg'] = 'Merge pages and namespace?';
+$lang['mergenspg'] = 'Merge Namespace & Start Page?';
 
 
 

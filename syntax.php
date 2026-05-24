@@ -146,7 +146,7 @@ class syntax_plugin_acmenu extends DokuWiki_Syntax_Plugin
         $renderer->doc .= "</span>";
         $renderer->doc .= "</div>";
         $renderer->doc .= "<ul class='idx'>";
-        $this->_print($renderer, $tree, $sub_ns, $open_items);
+        $this->_print($renderer, $tree, $sub_ns, $open_items, $base_id);
         $renderer->doc .= "</ul>";
         $renderer->doc .= "</li>";
         $renderer->doc .= "</ul>";
@@ -385,14 +385,14 @@ class syntax_plugin_acmenu extends DokuWiki_Syntax_Plugin
      *      [i] => (str) "<ns_acmenu>:<ns-1>:...:<ns-i>"
      *      }
      */
-    private function _print($renderer, $tree, $sub_ns, $open_items)
+    private function _print($renderer, $tree, $sub_ns, $open_items, $parent_id = "")
     {
         global $conf;
         foreach ($tree as $key => $val) {
             $val["id"] = utf8_decodeFN($val["id"]);
             $val["heading"] = utf8_decodeFN($val["heading"]);
             if ($val["type"] == "pg") {
-                if (!$this->getConf("mergenspg") || !@is_dir(substr(wikiFN($val["id"]), 0, -strlen(".txt")))) {
+                if (!$this->getConf("mergenspg") || ($val["id"] !== $parent_id && !@is_dir(substr(wikiFN($val["id"]), 0, -strlen(".txt"))))) {
                     $renderer->doc .= "<li class='level" . $val["level"]."'>";
                     $renderer->doc .= "<div class='li'>";
                     $renderer->internallink($val["id"], $val["heading"]);
@@ -431,7 +431,7 @@ class syntax_plugin_acmenu extends DokuWiki_Syntax_Plugin
                 } else {
                     $renderer->doc .= "<ul class='idx' style='display: none;'>";
                 }
-                $this->_print($renderer, $val["sub"], $sub_ns, $open_items);
+                $this->_print($renderer, $val["sub"], $sub_ns, $open_items, $val["id"]);
                 $renderer->doc .= "</ul>";
                 $renderer->doc .= "</li>";
             }

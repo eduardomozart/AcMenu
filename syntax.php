@@ -272,20 +272,23 @@ class syntax_plugin_acmenu extends DokuWiki_Syntax_Plugin
                     }
                 }
             } else {
-                $dir_id = implode(":", array_filter(array($ns_acmenu, $file), "strlen"));
+                // $dir_id  = namespace page id,  e.g. :acmenu       (pages/acmenu.txt)
+                // $start_id = start page id,     e.g. :acmenu:start (pages/acmenu/start.txt)
+                $dir_id   = implode(":", array_filter(array($ns_acmenu, $file), "strlen"));
                 $start_id = implode(":", array_filter(array($ns_acmenu, $file, $conf["start"]), "strlen"));
-                $id = $start_id;
-                if ($this->getConf("mergenspg") && page_exists($dir_id) && !page_exists($start_id)) {
-                    $id = $dir_id;
+                if (page_exists($start_id)) {
+                    $id = $start_id;  // :acmenu:start exists → link to it
+                } elseif (page_exists($dir_id)) {
+                    $id = $dir_id;    // :acmenu exists → link to it instead
+                } else {
+                    continue;         // neither exists → skip namespace entirely
                 }
                 if ($conf["sneaky_index"] && auth_quickaclcheck($id) < AUTH_READ) {
                     continue;
                 } else {
                     $heading = $file;
                     if (useheading("navigation")) {
-                        if (page_exists($id)) {
-                            $heading = p_get_first_heading($id);
-                        }
+                        $heading = p_get_first_heading($id);
                     }
                     if (file_exists($dir . "/" . $file . "/" . $conf["sidebar"] . ".txt")) {
                         // subnamespace with sidebar (external namespace) will not be scanned
@@ -409,9 +412,9 @@ class syntax_plugin_acmenu extends DokuWiki_Syntax_Plugin
                 if (count($val["sub"]) == 0) {
                     continue;
                 }
-                
+
                 $is_open = in_array($val["ns_id"], $sub_ns) || in_array($val["id"], $open_items) || in_array($val["ns_id"], $open_items);
-                
+
                 if ($is_open) {
                     $renderer->doc .= "<li class='open'>";
                 } else {

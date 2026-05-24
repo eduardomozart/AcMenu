@@ -75,7 +75,7 @@ function trim_url(url) {
         xlink += JSINFO["plugin_acmenu"]["doku_script"] + "?id=";
     }
 
-    var trimmed_url = url.replace(xlink, "");  // return only page's id
+    var trimmed_url = decodeURIComponent(url.replace(xlink, ""));  // return only page's id
 
     if (JSINFO["plugin_acmenu"]["useslash"] == 1) {
         const slash = /\//g;

@@ -276,19 +276,19 @@ class syntax_plugin_acmenu extends DokuWiki_Syntax_Plugin
                 // $start_id = start page id,     e.g. :acmenu:start (pages/acmenu/start.txt)
                 $dir_id   = implode(":", array_filter(array($ns_acmenu, $file), "strlen"));
                 $start_id = implode(":", array_filter(array($ns_acmenu, $file, $conf["start"]), "strlen"));
-                if (page_exists($start_id)) {
-                    $id = $start_id;  // :acmenu:start exists → link to it
-                } elseif (page_exists($dir_id)) {
-                    $id = $dir_id;    // :acmenu exists → link to it instead
+                if (page_exists($dir_id) && !page_exists($start_id)) {
+                    $id = $dir_id;   // :acmenu exists → link to it
                 } else {
-                    continue;         // neither exists → skip namespace entirely
+                    $id = $start_id; // link to :acmenu:start instead
                 }
                 if ($conf["sneaky_index"] && auth_quickaclcheck($id) < AUTH_READ) {
                     continue;
                 } else {
                     $heading = $file;
                     if (useheading("navigation")) {
-                        $heading = p_get_first_heading($id);
+                        if (page_exists($id)) {
+                            $heading = p_get_first_heading($id);
+                        }
                     }
                     if (file_exists($dir . "/" . $file . "/" . $conf["sidebar"] . ".txt")) {
                         // subnamespace with sidebar (external namespace) will not be scanned

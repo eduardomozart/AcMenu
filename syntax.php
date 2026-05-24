@@ -277,11 +277,11 @@ class syntax_plugin_acmenu extends DokuWiki_Syntax_Plugin
                 $dir_id   = implode(":", array_filter(array($ns_acmenu, $file), "strlen"));
                 $start_id = implode(":", array_filter(array($ns_acmenu, $file, $conf["start"]), "strlen"));
                 if (page_exists($start_id)) {
-                    $id = $start_id;  // :acmenu:start exists → link to it
+                    $id = $start_id;    // :acmenu:start exists → link to it
                 } elseif (page_exists($dir_id)) {
-                    $id = $dir_id;    // :acmenu exists → link to it instead
+                    $id = $dir_id;      // :acmenu exists → link to it instead
                 } else {
-                    $id = "";         // neither exists → render as plain text, no broken link
+                    $id = "#ns_nolink"; // neither exists → render as anchor jump, no broken link
                 }
                 if ($conf["sneaky_index"] && auth_quickaclcheck($id) < AUTH_READ) {
                     continue;
@@ -423,10 +423,7 @@ class syntax_plugin_acmenu extends DokuWiki_Syntax_Plugin
                     $renderer->doc .= "<li class='closed'>";
                 }
                 $renderer->doc .= "<div class='li'>";
-                if (empty($val["id"])) {
-                    // no page exists for this namespace, render as plain text with no broken link
-                    $renderer->doc .= "<span class='ns_nolink' data-id='" . hsc($val["ns_id"]) . "'>" . hsc($val["heading"]) . "</span>";
-                } elseif (in_array($val["ns_id"], $sub_ns)) {
+                if (in_array($val["ns_id"], $sub_ns)) {
                     $renderer->doc .= "<span class='curid'>";
                     $renderer->internallink($val["id"], $val["heading"]);
                     $renderer->doc .= "</span>";

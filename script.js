@@ -133,16 +133,7 @@ jQuery(document).ready(function() {
 
         var $a = jQuery(this).children("div.li").find("a");
         var item = "";
-        if ($a.length > 0) {
-            item = trim_url($a.attr("href"));
-        } else {
-            var $span = jQuery(this).children("div.li").find("span.ns_nolink");
-            if ($span.length > 0) {
-                item = $span.attr("data-id");
-            } else {
-                return;
-            }
-        }
+        item = trim_url($a.attr("href"));
 
         var is_mergenspg = JSINFO.plugin_acmenu && (
                            JSINFO.plugin_acmenu.mergenspg === 1 || 

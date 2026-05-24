@@ -7,7 +7,7 @@
 
 // keys need to match the config setting name
 // $lang['fixme'] = 'FIXME';
-$lang['abbrev'] = 'Mesclar espaço de nomes e página inicial?';
+$lang['mergenspg'] = 'Mesclar espaço de nomes e página inicial?';
 
 
 

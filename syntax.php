@@ -276,10 +276,12 @@ class syntax_plugin_acmenu extends DokuWiki_Syntax_Plugin
                 // $start_id = start page id,     e.g. :acmenu:start (pages/acmenu/start.txt)
                 $dir_id   = implode(":", array_filter(array($ns_acmenu, $file), "strlen"));
                 $start_id = implode(":", array_filter(array($ns_acmenu, $file, $conf["start"]), "strlen"));
-                if (page_exists($dir_id) && !page_exists($start_id)) {
-                    $id = $dir_id;   // :acmenu exists → link to it
+                if (page_exists($start_id)) {
+                    $id = $start_id;  // :acmenu:start exists → link to it
+                } elseif (page_exists($dir_id)) {
+                    $id = $dir_id;    // :acmenu exists → link to it instead
                 } else {
-                    $id = $start_id; // link to :acmenu:start instead
+                    $id = "";         // no page exists: render as plain text, no link
                 }
                 if ($conf["sneaky_index"] && auth_quickaclcheck($id) < AUTH_READ) {
                     continue;

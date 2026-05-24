@@ -277,11 +277,11 @@ class syntax_plugin_acmenu extends DokuWiki_Syntax_Plugin
                 $dir_id   = implode(":", array_filter(array($ns_acmenu, $file), "strlen"));
                 $start_id = implode(":", array_filter(array($ns_acmenu, $file, $conf["start"]), "strlen"));
                 if (page_exists($start_id)) {
-                    $id = $start_id;    // :acmenu:start exists → link to it
+                    $id = $start_id;  // :acmenu:start exists → link to it
                 } elseif (page_exists($dir_id)) {
-                    $id = $dir_id;      // :acmenu exists → link to it instead
+                    $id = $dir_id;    // :acmenu exists → link to it instead
                 } else {
-                    $id = "#ns_nolink"; // neither exists → render as anchor jump, no broken link
+                    $id = "";         // neither exists → render as plain text, no broken link
                 }
                 if ($conf["sneaky_index"] && auth_quickaclcheck($id) < AUTH_READ) {
                     continue;
@@ -396,20 +396,15 @@ class syntax_plugin_acmenu extends DokuWiki_Syntax_Plugin
         foreach ($tree as $key => $val) {
             $val["id"] = utf8_decodeFN($val["id"]);
             $val["heading"] = utf8_decodeFN($val["heading"]);
-            if ($val["type"] == "pg") {
-                if (!$this->getConf("mergenspg") || ($val["id"] !== $parent_id && !@is_dir(substr(wikiFN($val["id"]), 0, -strlen(".txt"))))) {
-                    $renderer->doc .= "<li class='level" . $val["level"]."'>";
+            if ($val["type"] == "pg" || $val["type"] == "ext_ns") {
+                if ($val["type"] == "ext_ns" || !$this->getConf("mergenspg") || ($val["id"] !== $parent_id && !@is_dir(substr(wikiFN($val["id"]), 0, -strlen(".txt"))))) {
+                    $divert = ($val["type"] == "ext_ns") ? " divert" : "";
+                    $renderer->doc .= "<li class='level" . $val["level"] . $divert . "'>";
                     $renderer->doc .= "<div class='li'>";
                     $renderer->internallink($val["id"], $val["heading"]);
                     $renderer->doc .= "</div>";
                     $renderer->doc .= "</li>";
                 }
-            } elseif ($val["type"] == "ext_ns") {
-                    $renderer->doc .= "<li class='level" . $val["level"]." divert'>";
-                    $renderer->doc .= "<div class='li'>";
-                    $renderer->internallink($val["id"], $val["heading"]);
-                    $renderer->doc .= "</div>";
-                    $renderer->doc .= "</li>";
             } elseif ($val["type"] == "ns") {
                 if (count($val["sub"]) == 0) {
                     continue;
@@ -423,7 +418,10 @@ class syntax_plugin_acmenu extends DokuWiki_Syntax_Plugin
                     $renderer->doc .= "<li class='closed'>";
                 }
                 $renderer->doc .= "<div class='li'>";
-                if (in_array($val["ns_id"], $sub_ns)) {
+                if (empty($val["id"])) {
+                    // no page exists for this namespace, render as plain text with no broken link
+                    $renderer->doc .= "<span class='ns_nolink' data-id='" . hsc($val["ns_id"]) . "'>" . hsc($val["heading"]) . "</span>";
+                } elseif (in_array($val["ns_id"], $sub_ns)) {
                     $renderer->doc .= "<span class='curid'>";
                     $renderer->internallink($val["id"], $val["heading"]);
                     $renderer->doc .= "</span>";

@@ -423,7 +423,10 @@ class syntax_plugin_acmenu extends DokuWiki_Syntax_Plugin
                     $renderer->doc .= "<li class='closed'>";
                 }
                 $renderer->doc .= "<div class='li'>";
-                if (in_array($val["ns_id"], $sub_ns)) {
+                if (empty($val["id"])) {
+                    // no page exists for this namespace, render as plain text
+                    $renderer->doc .= "<span class='ns_nolink'>" . hsc($val["heading"]) . "</span>";
+                } elseif (in_array($val["ns_id"], $sub_ns)) {
                     $renderer->doc .= "<span class='curid'>";
                     $renderer->internallink($val["id"], $val["heading"]);
                     $renderer->doc .= "</span>";

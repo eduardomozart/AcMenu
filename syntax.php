@@ -397,7 +397,7 @@ class syntax_plugin_acmenu extends DokuWiki_Syntax_Plugin
             $val["id"] = utf8_decodeFN($val["id"]);
             $val["heading"] = utf8_decodeFN($val["heading"]);
             if ($val["type"] == "pg" || $val["type"] == "ext_ns") {
-                if ($val["type"] == "ext_ns" || !$this->getConf("mergenspg") || ($val["id"] !== $parent_id && !@is_dir(substr(wikiFN($val["id"]), 0, -strlen(".txt"))))) {
+                if ($val["type"] == "ext_ns" || (!$this->getConf("mergenspg") || ($val["id"] !== $parent_id && !@is_dir(substr(wikiFN($val["id"]), 0, -strlen(".txt")))))) {
                     $divert = ($val["type"] == "ext_ns") ? " divert" : "";
                     $renderer->doc .= "<li class='level" . $val["level"] . $divert . "'>";
                     $renderer->doc .= "<div class='li'>";
